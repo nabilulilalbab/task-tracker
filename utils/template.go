@@ -16,15 +16,6 @@ var funcMap = template.FuncMap{
 	"mod": func(i, j int) int {
 		return i % j
 	},
-	// "div": func(a, b int) int {
-	// 	if b == 0 {
-	// 		return 0
-	// 	}
-	// 	return a / b
-	// },
-	// "join": func(a []string, sep string) string {
-	// 	return strings.Join(a, sep)
-	// },
 }
 
 func ParseTemplates() *template.Template {
