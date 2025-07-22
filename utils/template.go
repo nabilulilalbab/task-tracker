@@ -6,7 +6,6 @@ import (
 	"strings"
 )
 
-// Definisikan FuncMap untuk mendaftarkan fungsi kustom
 var funcMap = template.FuncMap{
 	"split": func(s, sep string) []string {
 		return strings.Split(s, sep)
@@ -14,10 +13,18 @@ var funcMap = template.FuncMap{
 	"trim": func(s string) string {
 		return strings.TrimSpace(s)
 	},
-	// Tambahkan fungsi mod di sini
 	"mod": func(i, j int) int {
 		return i % j
 	},
+	// "div": func(a, b int) int {
+	// 	if b == 0 {
+	// 		return 0
+	// 	}
+	// 	return a / b
+	// },
+	// "join": func(a []string, sep string) string {
+	// 	return strings.Join(a, sep)
+	// },
 }
 
 func ParseTemplates() *template.Template {
