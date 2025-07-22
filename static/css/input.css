@@ -1,0 +1,7 @@
+@import "tailwindcss" source(none);
+@source "./../../view/templates/*.{html,js}";
+@source "./../../view/templates/**/*.{html,js}";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
