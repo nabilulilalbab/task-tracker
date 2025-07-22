@@ -167,21 +167,3 @@ func (c *CarController) ProcessUpdateTask(w http.ResponseWriter, r *http.Request
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
-
-func (c *CarController) CompleteTask(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	idStr := ps.ByName("id")
-	id, err := strconv.ParseUint(idStr, 10, 64)
-	if err != nil {
-		http.Error(w, "ID tidak valid", http.StatusBadRequest)
-		return
-	}
-
-	err = c.service.UpdateTaskStatus(uint(id), "done")
-	if err != nil {
-		log.Printf("Error saat memanggil service UpdateTaskStatus: %v", err)
-		http.Error(w, "Gagal mengupdate status task", http.StatusInternalServerError)
-		return
-	}
-
-	http.Redirect(w, r, "/", http.StatusSeeOther)
-}

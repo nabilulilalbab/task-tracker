@@ -21,7 +21,6 @@ type TaskService interface {
 	GetAllTasks() ([]models.Task, error)
 	UpdateTask(id uint, task *models.Task, fileHeader *multipart.FileHeader) (*models.Task, error)
 	DeleteTask(id uint) error
-	UpdateTaskStatus(id uint, status string) error
 }
 
 type taskServiceImpl struct {
@@ -140,14 +139,4 @@ func (s *taskServiceImpl) GetAllTasks() ([]models.Task, error) {
 
 func (s *taskServiceImpl) DeleteTask(id uint) error {
 	return s.repo.Delete(id)
-}
-
-func (s *taskServiceImpl) UpdateTaskStatus(id uint, status string) error {
-	task, err := s.repo.FindByID(id)
-	if err != nil {
-		return err
-	}
-	task.Status = status
-	_, err = s.repo.Update(task)
-	return err
 }
