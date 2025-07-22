@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/nabilulilalbab/welcomesite"
 	"github.com/nabilulilalbab/welcomesite/config"
 	"github.com/nabilulilalbab/welcomesite/controllers"
 	"github.com/nabilulilalbab/welcomesite/repositories"
@@ -15,11 +16,14 @@ import (
 func main() {
 	config.InitDatabase()
 	cachedTemplates := view.ParseTemplates()
+	// Definisikan path untuk unggahan dan buat direktori jika belum ada
+	uploadsPath := "static/uploads/tasks"
 	// Task
 	taskRepo := repositories.NewTaskRepository(config.DB)
-	taskService := services.NewTaskService(taskRepo)
+	taskService := services.NewTaskService(taskRepo, uploadsPath)
 	taskCtrl := controllers.NewTaskController(taskService, cachedTemplates)
-	router := routes.NewRouter(taskCtrl)
+	// Inisialisasi router dengan static file system
+	router := routes.NewRouter(taskCtrl, welcomesite.StaticFS)
 
 	port := ":8080"
 	log.Printf("Server berjalan di http://localhost%s\n", port)

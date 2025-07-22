@@ -24,11 +24,12 @@ type TaskService interface {
 }
 
 type taskServiceImpl struct {
-	repo repositories.TaskRepository
+	repo        repositories.TaskRepository
+	uploadsPath string
 }
 
-func NewTaskService(repository repositories.TaskRepository) TaskService {
-	return &taskServiceImpl{repo: repository}
+func NewTaskService(repository repositories.TaskRepository, uploadsPath string) TaskService {
+	return &taskServiceImpl{repo: repository, uploadsPath: uploadsPath}
 }
 
 func (s *taskServiceImpl) CreateTask(task *models.Task, coverFile *multipart.FileHeader) (*models.Task, error) {
@@ -43,7 +44,7 @@ func (s *taskServiceImpl) CreateTask(task *models.Task, coverFile *multipart.Fil
 	}
 	if coverFile != nil {
 		uniqueFileName := "task_" + strconv.FormatUint(uint64(task.ID), 10) + "_" + strconv.FormatInt(time.Now().UnixNano(), 10) + filepath.Ext(coverFile.Filename)
-		diskPath := filepath.Join("static", "uploads", "tasks", uniqueFileName)
+		diskPath := filepath.Join(s.uploadsPath, uniqueFileName)
 		src, err := coverFile.Open()
 		if err != nil {
 			tx.Rollback()
@@ -99,7 +100,7 @@ func (s *taskServiceImpl) UpdateTask(id uint, taskInput *models.Task, coverFile 
 			}
 		}
 		uniqueFileName := "task_" + strconv.FormatUint(uint64(existingTask.ID), 10) + "_" + strconv.FormatInt(time.Now().UnixNano(), 10) + filepath.Ext(coverFile.Filename)
-		diskPath := filepath.Join("static", "uploads", "tasks", uniqueFileName)
+		diskPath := filepath.Join(s.uploadsPath, uniqueFileName)
 		src, err := coverFile.Open()
 		if err != nil {
 			tx.Rollback()
@@ -138,5 +139,27 @@ func (s *taskServiceImpl) GetAllTasks() ([]models.Task, error) {
 }
 
 func (s *taskServiceImpl) DeleteTask(id uint) error {
+	// 1. Ambil data tugas untuk mendapatkan path cover
+	task, err := s.repo.FindByID(id)
+	if err != nil {
+		return fmt.Errorf("gagal menemukan tugas dengan ID %d: %w", id, err)
+	}
+
+	// 2. Hapus file cover jika ada
+	if task.Cover != "" {
+		// Path cover di database adalah URL, kita perlu mengubahnya menjadi path fisik
+		// Contoh: /static/uploads/tasks/task_1_...png -> static/uploads/tasks/task_1_...png
+		// Kita perlu menghapus '/static/' dari awal URL
+		fullPath := filepath.Join(s.uploadsPath, filepath.Base(task.Cover))
+
+		err := os.Remove(fullPath)
+		if err != nil {
+			// Log error tapi jangan kembalikan error, agar penghapusan database tetap berjalan
+			// karena penghapusan file mungkin gagal karena file tidak ada, izin, dll.
+			fmt.Printf("Peringatan: Gagal menghapus file cover %s: %v\n", fullPath, err)
+		}
+	}
+
+	// 3. Hapus data dari database
 	return s.repo.Delete(id)
 }

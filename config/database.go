@@ -14,7 +14,7 @@ func InitDatabase() {
 	if err != nil {
 		panic("failed to connect database")
 	}
-	// Migrate the schema
+
 	db.AutoMigrate(&models.Task{})
 	DB = db
 }
