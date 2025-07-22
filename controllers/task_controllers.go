@@ -167,3 +167,21 @@ func (c *CarController) ProcessUpdateTask(w http.ResponseWriter, r *http.Request
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
+
+func (c *CarController) DeleteTask(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	idStr := ps.ByName("id")
+	id, err := strconv.ParseUint(idStr, 10, 64)
+	if err != nil {
+		http.Error(w, "ID tidak valid", http.StatusBadRequest)
+		return
+	}
+
+	err = c.service.DeleteTask(uint(id))
+	if err != nil {
+		log.Printf("Gagal menghapus task ID %d: %v", id, err)
+		http.Error(w, "Gagal menghapus task", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}

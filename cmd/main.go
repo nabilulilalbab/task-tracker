@@ -9,12 +9,12 @@ import (
 	"github.com/nabilulilalbab/welcomesite/repositories"
 	"github.com/nabilulilalbab/welcomesite/routes"
 	"github.com/nabilulilalbab/welcomesite/services"
-	"github.com/nabilulilalbab/welcomesite/utils"
+	"github.com/nabilulilalbab/welcomesite/view"
 )
 
 func main() {
 	config.InitDatabase()
-	cachedTemplates := utils.ParseTemplates()
+	cachedTemplates := view.ParseTemplates()
 	// Task
 	taskRepo := repositories.NewTaskRepository(config.DB)
 	taskService := services.NewTaskService(taskRepo)
